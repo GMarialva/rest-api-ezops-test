@@ -1,6 +1,6 @@
-create schema blog;
+create schema IF NOT EXISTS blog;
 
-create table blog.post (
+create table IF NOT EXISTS blog.post (
 	id serial primary key,
 	title text not null,
 	content text not null,

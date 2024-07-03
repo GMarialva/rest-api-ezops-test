@@ -1,5 +1,6 @@
 node_modules/
 devops.txt
 .docker
-Dockerfile
-docker-compose.yml
+postgres_data
+# Dockerfile
+# docker-compose.yml
