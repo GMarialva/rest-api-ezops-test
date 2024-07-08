@@ -93,8 +93,7 @@ jobs:
     - name: Install Chart
       run: |
         helm dependency update ezopsapi
-        # helm template ezopsapi --dry-run
+        helm template ezopsapi --dry-run
         echo "$KUBECONFIG_FILE" | base64 --decode > kubeconfig
-        cat kubeconfig
         export KUBECONFIG="kubeconfig"
         helm install ezopsapi ezopsapi --namespace ezops
