@@ -46,22 +46,27 @@ service:
   targetPort: http
 
 ingress:
-  enabled: false
+  enabled: true
   className: ""
-  annotations: {}
+  annotations: 
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
-    - host: chart-example.local
+    - host: 50.19.72.152:5000
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls:
+  - hosts:
+    - 50.19.72.152:5000
+    secretName: api-tls
 
 configMap:
   create: true
   name: "api"
   data:
     DB_USER: api
-    DB_HOST: postgres
+    DB_HOST: postgresql
     DB_PORT: "5432"
     DB_NAME: "ezopsapi"
 
@@ -84,3 +89,19 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+postgresql:
+  auth:
+    username: api
+    password: password
+    database: ezopsapi
+  primary:
+    initdb:
+      scripts: |
+        create schema IF NOT EXISTS blog;
+        create table IF NOT EXISTS blog.post (
+          id serial primary key,
+          title text not null,
+          content text not null,
+          date timestamp default now()
+        );
