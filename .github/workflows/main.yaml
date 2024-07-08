@@ -10,7 +10,7 @@ env:
   DOCKER_ID: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PW: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-  KUBECONFIG: ${{ secrets.KUBECONFIG }}
+  KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
   APP_NAME: ezops-api
   NAMESPACE: ezops-api
 
@@ -94,6 +94,6 @@ jobs:
       run: |
         helm dependency update ezopsapi
         helm template ezopsapi --dry-run
-        echo "$KUBECONFIG" | base64 --decode > kubeconfig
+        echo "$KUBECONFIG_FILE" | base64 --decode > kubeconfig
         export KUBECONFIG="kubeconfig"
         helm install ezopsapi ezopsapi --namespace ezops
