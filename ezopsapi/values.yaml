@@ -46,19 +46,19 @@ service:
   targetPort: http
 
 ingress:
-  enabled: true
+  enabled: false
   className: ""
   annotations: 
     cert-manager.io/cluster-issuer: "letsencrypt"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
-    - host: 50.19.72.152:5000
+    - host: 50.19.72.152
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
   - hosts:
-    - 50.19.72.152:5000
+    - 50.19.72.152
     secretName: api-tls
 
 configMap:
