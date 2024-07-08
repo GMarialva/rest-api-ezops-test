@@ -94,6 +94,6 @@ jobs:
       run: |
         helm dependency update ezopsapi
         helm template ezopsapi --dry-run
-        echo $KUBECONFIG > kubeconfig
+        echo "$KUBECONFIG" | base64 --decode > kubeconfig
         export KUBECONFIG="kubeconfig"
         helm install ezopsapi ezopsapi --namespace ezops
