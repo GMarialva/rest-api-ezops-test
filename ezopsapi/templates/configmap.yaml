@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.configMap.name | default (include "common.fullname" .) }}
+  name: {{ .Values.configMap.name | default (include "ezopsapi.fullname" .) }}
 data:
 {{- range $key, $val := .Values.configMap.data }}
     {{ $key }}: {{ $val | quote}}
