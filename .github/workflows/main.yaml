@@ -46,11 +46,9 @@ jobs:
         echo 'All done!'
           
     - name: Trivy Scanning
-      env:
-        TIME: "${{ steps.time.outputs.time }}"
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: '${{ env.DOCKER_REGISTRY }}/${{env.APP_NAME}}:$TIME'
+        image-ref: '${{ env.DOCKER_REGISTRY }}/${{env.APP_NAME}}:${{ steps.time.outputs.time }}'
         format: 'table'
         output: 'trivy-results.txt'
 
