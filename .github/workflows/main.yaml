@@ -94,4 +94,4 @@ jobs:
         helm template ezopsapi --dry-run
         echo $KUBECONFIG | base64 -d > kubeconfig
         export KUBECONFIG="kubeconfig"
-        cat ezopsapi/values.yaml
+        ls -la
