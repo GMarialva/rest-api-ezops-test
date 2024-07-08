@@ -26,13 +26,13 @@ securityContext: {}
 
 livenessProbe:
   httpGet:
-    path: /
+    path: /posts
     port: 3000
   initialDelaySeconds: 90
   periodSeconds: 30
 readinessProbe:
   httpGet:
-    path: /
+    path: /posts
     port: 3000
   initialDelaySeconds: 90
   periodSeconds: 30
