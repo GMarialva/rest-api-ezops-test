@@ -10,13 +10,15 @@ env:
   DOCKER_ID: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PW: ${{ secrets.DOCKER_PASSWORD }}
   DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-  KUBECONFIG: ${{ secrets.KUBECONFIG }}
+  KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
   APP_NAME: ezops-api
   NAMESPACE: ezops-api
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      TIME: ${{ steps.time.outputs.time }}
 
     steps:
     - uses: actions/checkout@v3
@@ -46,11 +48,9 @@ jobs:
         echo 'All done!'
           
     - name: Trivy Scanning
-      env:
-        TIME: "${{ steps.time.outputs.time }}"
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: '${{ env.DOCKER_REGISTRY }}/${{env.APP_NAME}}:$TIME'
+        image-ref: '${{ env.DOCKER_REGISTRY }}/${{env.APP_NAME}}:${{ steps.time.outputs.time }}'
         format: 'table'
         output: 'trivy-results.txt'
 
@@ -66,15 +66,6 @@ jobs:
         TIME: "${{ steps.time.outputs.time }}"
       run: docker push $DOCKER_REGISTRY/$APP_NAME:$TIME
 
-    - name: Render Version in Helm values 
-      env:
-        TIME: "${{ steps.time.outputs.time }}"
-      run: | 
-        wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
-        chmod +x /usr/bin/yq
-        yq e -i '.image.tag = "$TIME"' ezopsapi/values.yaml
-        cat ezopsapi/values.yaml
-
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -84,6 +75,15 @@ jobs:
       with:
           ref: ${{github.base_ref}}
 
+    - name: Render Version in Helm values 
+      env:
+        TIME: "${{ needs.build.outputs.TIME }}"
+      run: | 
+        wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
+        chmod +x /usr/bin/yq
+        yq eval ".image.tag = \"$TIME\"" -i ezopsapi/values.yaml
+        cat ezopsapi/values.yaml
+
     - name: Install Helm
       run: |
         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
@@ -92,7 +92,8 @@ jobs:
 
     - name: Install Chart
       run: |
-        helm dependency update
+        helm dependency update ezopsapi
         helm template ezopsapi --dry-run
-        echo $KUBECONFIG | base64 -d > kubeconfig
+        echo "$KUBECONFIG_FILE" | base64 --decode > kubeconfig
         export KUBECONFIG="kubeconfig"
+        helm upgrade -i ezopsapi ezopsapi --namespace ezops

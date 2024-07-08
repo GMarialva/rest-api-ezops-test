@@ -1,12 +1,12 @@
 replicaCount: 1
 
 image:
-  repository: gmarialva/ezopsapi
+  repository: gmarialva/ezops-api
   pullPolicy: IfNotPresent
   tag: "1.0"
 
-imagePullSecrets: 
-  - name: dockerhub
+imagePullSecrets: {}
+  # - name: dockerhub
 nameOverride: ""
 fullnameOverride: ""
 
@@ -26,13 +26,13 @@ securityContext: {}
 
 livenessProbe:
   httpGet:
-    path: /
+    path: /posts
     port: 3000
   initialDelaySeconds: 90
   periodSeconds: 30
 readinessProbe:
   httpGet:
-    path: /
+    path: /posts
     port: 3000
   initialDelaySeconds: 90
   periodSeconds: 30
@@ -46,19 +46,19 @@ service:
   targetPort: http
 
 ingress:
-  enabled: true
+  enabled: false
   className: ""
   annotations: 
     cert-manager.io/cluster-issuer: "letsencrypt"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   hosts:
-    - host: 50.19.72.152:5000
+    - host: 50.19.72.152
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
   - hosts:
-    - 50.19.72.152:5000
+    - 50.19.72.152
     secretName: api-tls
 
 configMap:
@@ -97,11 +97,12 @@ postgresql:
     database: ezopsapi
   primary:
     initdb:
-      scripts: |
-        create schema IF NOT EXISTS blog;
-        create table IF NOT EXISTS blog.post (
-          id serial primary key,
-          title text not null,
-          content text not null,
-          date timestamp default now()
-        );
+      scripts: 
+        init.sql: |-
+          create schema IF NOT EXISTS blog;
+          create table IF NOT EXISTS blog.post (
+            id serial primary key,
+            title text not null,
+            content text not null,
+            date timestamp default now()
+          );
